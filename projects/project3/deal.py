@@ -9,23 +9,21 @@ number 156.
 @author: Sasha Donaldson and Andy Bart
 @date: March 2022
 
-    Functions:
-        greeting(prize_list)
-        show_prizes(prize_list)
-        generate_closed_boxes(prize_list> -> List 'int'
-        show_closed_boxes(closed_boxes)
-        choose_box() -> int
-        open_box(closed_boxes,open_boxes)
-        count_not_closed(closed_boxes) -> int
-        prizes_remaining(prize_list,open_boxes) list 'int'
-        banker(remaining_prizes) -> int
-        winner(deal, offer,player_box)
-        display_documentation()
-        main()
+Functions:
+    greeting(prize_list)
+    show_prizes(prize_list)
+    generate_closed_boxes(prize_list> -> List 'int'
+    show_closed_boxes(closed_boxes)
+    choose_box() -> int
+    open_box(closed_boxes,open_boxes)
+    count_not_closed(closed_boxes) -> int
+    prizes_remaining(prize_list,open_boxes) list 'int'
+    banker(remaining_prizes) -> int
+    winner(deal, offer,player_box)
+    display_documentation()
+    main()
 """
 import random
-import math
-import copy
 
 
 # -------------------------------------------------
@@ -38,7 +36,7 @@ def greeting(prize_list) -> None:
     prizes on offer and announces the introduction to the game depending on
     the number of prizes in the original prize_list list.
 
-    :param prize_list:
+    :param prize_list: A sorted list of available prizes
     """
     print(f'Welcome to deal or no deal, there are {len(prize_list)} prizes'
           f'that have been placed in {len(prize_list)}\n'
@@ -51,7 +49,7 @@ def show_prizes(prize_list) -> None:
     This function receives one parameter, a list containing the remaining
     prizes and displays then to the console as follows
 
-    :param prize_list:
+    :param prize_list: A sorted list of available prizes
     :return:
     """
     display_prize_list = prize_list.copy()
@@ -71,8 +69,9 @@ def generate_closed_boxes(prize_list) -> list:
     This should make it so that the list of closed boxes is in a random
     order. Finally, the function returns the list of closed_boxes.
 
-    :param prize_list:
-    :return closed_boxes:
+    :param prize_list: A sorted list of available prizes.
+    :return closed_boxes: A list containing all the available prizes after
+    being shuffled, with the opened prizes set to none.
     """
     closed_boxes = []
     prize_list_copy = prize_list.copy()
@@ -94,13 +93,15 @@ def show_closed_boxes(closed_boxes) -> None:
     element in the list of closed boxes may contain None (indicating it has
     been opened); when this happens the box can be skipped.
 
-    :param closed_boxes:
+    :param closed_boxes: A list containing all the available prizes after being
+        shuffled, with the opened prizes set to none.
     :return:
     """
     for box_number, box in enumerate(closed_boxes):
         if box is None:
             continue
-        print(f'{box_number+1}[?]', end=' ')
+        else:
+            print(f'{box_number+1}[?]', end=' ')
     print('')
 
 
@@ -117,23 +118,26 @@ def choose_box(closed_boxes) -> float:
     return at the end of the function, and the corresponding element in the
     list of closed boxes is set to none.
 
-    :param closed_boxes:
-    :return:
+    :param closed_boxes: A list containing all the available prizes after being
+    shuffled, with the opened prizes set to none.
+    :return prize: The cash amount in the selected box
     """
     show_closed_boxes(closed_boxes)
+    selected_box = None
     while True:
         try:
             selected_box = int(input('Select a box: '))
-            if closed_boxes[selected_box-1] is not None and selected_box > 0:
+            if closed_boxes[selected_box - 1] is not None and selected_box > 0:
                 break
-            print('Error, select a box number shown')
         except ValueError:
             print('Error, select an integer')
             continue
         except IndexError:
             print('Error, select a box number shown')
             continue
+        print('Error, select a box number shown')
     print(f'Player has chosen box {selected_box}')
+
     prize = closed_boxes[selected_box-1]
     closed_boxes[selected_box-1] = None
     return prize
@@ -158,9 +162,9 @@ def open_box(closed_boxes, open_boxes) -> None:
     how to maximize reuse of pre-exiting code rather than reinventing the
     wheel.
 
-    :param closed_boxes:
-    :param open_boxes:
-    :return:
+    :param closed_boxes: A list containing all the available prizes after being
+    shuffled, with the opened prizes set to none.
+    :param open_boxes: A list of the prizes which have been opened.
     """
     selected_box_prize = choose_box(closed_boxes)
     print(f'The box you opened had £{selected_box_prize}.')
@@ -171,11 +175,8 @@ def count_not_closed(closed_boxes) -> float:
     """
     Counts the number of closed boxes that have not been opened yet.
 
-    Parameters:
-    closed_boxes (list): A list of closed boxes with shuffled prizes.
-
-    Returns:
-    int: The count of closed boxes that have not been opened yet.
+    :param closed_boxes: A list of closed boxes with shuffled prizes.
+    :return count: The count of closed boxes that have not been opened yet.
     """
     count = 0
     for box in closed_boxes:
@@ -185,6 +186,16 @@ def count_not_closed(closed_boxes) -> float:
 
 
 def prizes_remaining(prize_list, open_boxes) -> list:
+    """
+    Iterates through all prizes in the prize list and in the open boxes to
+    find which prizes are remaining without looking at `closed_boxes`
+
+    :param prize_list: A sorted list containing the available prizes.
+    :param open_boxes: A chronologically ordered list of boxes which have been
+    opened
+    :return remaining_prizes: A list containing prizes that have not been
+    opened
+    """
     remaining_prizes = []
     for prize in prize_list:
         if prize not in open_boxes:
@@ -196,11 +207,8 @@ def banker(prize_remaining) -> float:
     """
     Calculates the banker's offer based on the remaining prizes.
 
-    Parameters:
-    prize_remaining (list): A list containing the remaining prizes.
-
-    Returns:
-    int: The banker's offer.
+    :param prize_remaining: A list containing the remaining prizes.
+    :return offer: The banker's offer.
     """
     total = 0
     for prize in prize_remaining:
@@ -214,25 +222,26 @@ def winner(deal, offer, players_box) -> None:
     """
     Determines the winner of the game and announces the result.
 
-    Parameters:
-    deal (bool): Indicates if a deal was made.
-    offer (int): The last offer given by the banker.
-    players_box (int): The value of the player's box.
+    :param deal: Indicates if a deal was made.
+    :param offer: The last offer given by the banker.
+    :param players_box: The value of the player's box.
     """
+    print(f'Your box had £{players_box},'
+          f'the bankers final offer was £{offer}.')
     if deal:
-        if players_box >= offer:
-            print("The player beat the banker")
-            print("The player gets £" + str(players_box))
+        if players_box <= offer:
+            print(f"The player beat the banker.")
+            print(f"The player gets £{offer}.")
         else:
-            print("The banker beat the player")
-            print("The player gets £" + str(offer))
+            print(f"The banker beat the player.")
+            print(f"The player gets £{offer}.")
     else:
         if players_box >= offer:
-            print("The player beat the banker")
-            print("The player gets £" + str(players_box))
+            print(f"The player beat the banker.")
+            print(f"The player gets £{players_box}.")
         else:
-            print("The banker beat the player")
-            print("The player gets £" + str(players_box))
+            print(f"The banker beat the player.")
+            print(f"The player gets £{players_box}.")
 
 
 # End of area where your functions are defined ----------------
